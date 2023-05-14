@@ -2,6 +2,7 @@
 
 # misc
 .DS_Store
+**/node_modules
 
 ### VisualStudioCode ###
 .vscode/*
@@ -10,3 +11,4 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
+
