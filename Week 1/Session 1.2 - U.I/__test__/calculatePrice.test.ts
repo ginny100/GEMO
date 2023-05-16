@@ -55,7 +55,6 @@ describe('Test suite 1: calculatePrice1', () => {
   });
 });
 
-
 // Test suite 2
 describe('Test suite 2: calculatePrice2', () => {
   it('Test case 1: small hot coffee without topping, whole milk (base price only)', () => {
@@ -109,3 +108,9 @@ describe('Test suite 2: calculatePrice2', () => {
     expect(price).toBe(3.25);
   });
 });
+
+// Test suite 3
+
+// Test suite 4
+
+// Test suite 5
