@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true
+    // Other TypeScript compiler options...
+  },
+  "include": ["src/**/*.ts"]
+}
