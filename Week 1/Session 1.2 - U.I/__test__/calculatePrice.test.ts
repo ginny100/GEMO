@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, afterAll } from '@jest/globals';
 import * as calculatePrice from '../src/utils/calculatePrice';
 
 // Test suite 1
@@ -203,8 +203,142 @@ describe('Test suite 5: calculatePrice5', () => {
   it('Test case 1: Empty item list', () => {
     const bill: calculatePrice.Bill = calculatePrice.calculatePrice5([]);
     expect(bill[0]).toBe(0);
-    expect(bill[1]).toBe(undefined);
+    expect(bill[1]).toStrictEqual(new Map<string, number>());
   });
 
-  
+  it('Test case 2: One drink item without additional options', () => {
+    const drink: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.S,
+      calculatePrice.DRINK_TYPES.HOT,
+      calculatePrice.DRINK_TOPPINGS.NONE,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.COFFEE,
+      calculatePrice.MILK_OPTIONS.WHOLE_MILK
+    );
+
+    const bill: calculatePrice.Bill = calculatePrice.calculatePrice5([drink]);
+    expect(bill[0]).toBe(2.14500);
+    expect(bill[1].size).toBe(1);
+    expect(bill[1].get("SMALL HOT COFFEE WHOLE MILK")).toBe(2);
+  });
+
+  it('Test case 3: Two drink items and two food items with additional options', () => {
+    const drink1: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.M,
+      calculatePrice.DRINK_TYPES.COLD,
+      calculatePrice.DRINK_TOPPINGS.WHIPPED_CREAM,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.MILK_TEA,
+      calculatePrice.MILK_OPTIONS.ALMOND_MILK
+    );
+
+    const drink2: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.L,
+      calculatePrice.DRINK_TYPES.BLENDED,
+      calculatePrice.DRINK_TOPPINGS.NONE,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.COFFEE,
+      calculatePrice.MILK_OPTIONS.WHOLE_MILK
+    );
+
+    const food1: calculatePrice.Food = new calculatePrice.Food(
+      calculatePrice.FOOD.SANDWICH,
+      calculatePrice.FOOD_ADDITIONALS.EGG
+    );
+
+    const food2: calculatePrice.Food = new calculatePrice.Food(
+      calculatePrice.FOOD.BAGEL,
+      calculatePrice.FOOD_ADDITIONALS.NONE
+    );
+
+    const bill: calculatePrice.Bill = calculatePrice.calculatePrice5([drink1, drink2, food1, food2]);
+    expect(bill[0]).toBe(15.819375);
+    expect(bill[1].size).toBe(4);
+    expect(bill[1].get("MEDIUM COLD MILK TEA WHIPPED CREAM ALMOND MILK")).toBe(3.75);
+    expect(bill[1].get("LARGE BLENDED COFFEE WHOLE MILK")).toBe(4);
+    expect(bill[1].get("EGG SANDWICH")).toBe(4);
+    expect(bill[1].get("BAGEL")).toBe(3);
+  });
+
+  it('Test case 4: Three drink items with same options', () => {
+    const drink1: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.S,
+      calculatePrice.DRINK_TYPES.HOT,
+      calculatePrice.DRINK_TOPPINGS.NONE,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.COFFEE,
+      calculatePrice.MILK_OPTIONS.WHOLE_MILK
+    );
+
+    const drink2: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.S,
+      calculatePrice.DRINK_TYPES.COLD,
+      calculatePrice.DRINK_TOPPINGS.NONE,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.COFFEE,
+      calculatePrice.MILK_OPTIONS.WHOLE_MILK
+    );
+
+    const drink3: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.S,
+      calculatePrice.DRINK_TYPES.BLENDED,
+      calculatePrice.DRINK_TOPPINGS.NONE,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.COFFEE,
+      calculatePrice.MILK_OPTIONS.WHOLE_MILK
+    );
+
+    const bill: calculatePrice.Bill = calculatePrice.calculatePrice5([drink1, drink2, drink3]);
+    expect(bill[0]).toBe(7.5075);
+    expect(bill[1].size).toBe(3);
+    expect(bill[1].get("SMALL HOT COFFEE WHOLE MILK")).toBe(2);
+    expect(bill[1].get("SMALL COLD COFFEE WHOLE MILK")).toBe(2);
+    expect(bill[1].get("SMALL BLENDED COFFEE WHOLE MILK")).toBe(3);
+  });
+
+  it('Test case 5: Two drink items and two food items with different options', () => {
+    const drink1: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.M,
+      calculatePrice.DRINK_TYPES.COLD,
+      calculatePrice.DRINK_TOPPINGS.WHIPPED_CREAM,
+      calculatePrice.SAUCE_PUMP.NONE,
+      0,
+      calculatePrice.DRINK.MILK_TEA,
+      calculatePrice.MILK_OPTIONS.ALMOND_MILK
+    );
+
+    const drink2: calculatePrice.Drink = new calculatePrice.Drink(
+      calculatePrice.DRINK_SIZES.S,
+      calculatePrice.DRINK_TYPES.HOT,
+      calculatePrice.DRINK_TOPPINGS.NONE,
+      calculatePrice.SAUCE_PUMP.CHOCOLATE,
+      6,
+      calculatePrice.DRINK.COFFEE,
+      calculatePrice.MILK_OPTIONS.WHOLE_MILK
+    );
+
+    const food1: calculatePrice.Food = new calculatePrice.Food(
+      calculatePrice.FOOD.SANDWICH,
+      calculatePrice.FOOD_ADDITIONALS.TURKEY
+    );
+
+    const food2: calculatePrice.Food = new calculatePrice.Food(
+      calculatePrice.FOOD.BAGEL,
+      calculatePrice.FOOD_ADDITIONALS.BUTTER
+    );
+
+    const bill: calculatePrice.Bill = calculatePrice.calculatePrice5([drink1, drink2, food1, food2]);
+    expect(bill[0]).toBe(16.355625);
+    expect(bill[1].size).toBe(4);
+    expect(bill[1].get("MEDIUM COLD MILK TEA WHIPPED CREAM ALMOND MILK")).toBe(3.75);
+    expect(bill[1].get("SMALL HOT COFFEE 6 CHOCOLATE PUMPS WHOLE MILK")).toBe(4);
+    expect(bill[1].get("TURKEY SANDWICH")).toBe(4);
+    expect(bill[1].get("BUTTER BAGEL")).toBe(3.5);
+  });
 });
