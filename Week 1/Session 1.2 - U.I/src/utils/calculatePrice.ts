@@ -1,16 +1,23 @@
 export enum ITEM_TYPES {
     DRINK = "DRINK",
-    FOOD = "FOOD"
+    FOOD = "FOOD",
+    // SMOOTHIES = "SMOOTHIES"
 };
 
 export enum DRINK {
     COFFEE = "COFFEE",
-    MILK_TEA = "MILK TEA"
+    MILK_TEA = "MILK TEA",
+    // TEA = "TEA",
+    // JUICE = "JUICE",
+    // KOMBUCHA = "KOMBUCHA"
 };
 
 export enum DRINK_BASE_PRICE {
     COFFEE = 2.0,
-    MILK_TEA = 2.25
+    MILK_TEA = 2.25,
+    // TEA = 2.0,
+    // JUICE = 5.0,
+    // KOMBUCHA = 4.0
 };
 
 export enum DRINK_SIZES {
@@ -29,8 +36,22 @@ export enum DRINK_TYPES {
 export enum DRINK_TOPPINGS {
     NONE = "NONE",
     WHIPPED_CREAM = "WHIPPED CREAM",
-    SAUCE_PUMP = "SAUCE PUMP"
+    // BOBA = "BOBA",
+    // PUDDING = "PUDDING",
+    // COCONUT_JELLY = "COCONUT JELLY"
 };
+
+// TODO: Separate toppings and sauce pumps into 2 different categories.
+// Later one, there may be more options for topping such as creamchease, jelly, boba, etc.
+// and more options for sauce pumps such as caramel, vanilla, hazelnut, etc.
+
+export enum SAUCE_PUMP {
+    NONE = "NONE",
+    CHOCOLATE = "CHOCOLATE",
+    // CARAMEL = "CARAMEL",
+    // HAZELNUT = "HAZELNUT",
+    // VANILLA = "VANILLA"
+}
 
 export enum MILK_OPTIONS {
     ALMOND_MILK = "ALMOND MILK",
@@ -74,17 +95,19 @@ class Drink implements Item {
     drinkSize: DRINK_SIZES;
     drinkType: DRINK_TYPES;
     drinkTopping: DRINK_TOPPINGS;
+    drinkSauce: SAUCE_PUMP;
+    saucePumps: number;
     drinkName: DRINK;
     milkOption: MILK_OPTIONS;
-    saucePumps: number;
 
-    constructor(drinkSize: DRINK_SIZES, drinkType: DRINK_TYPES, drinkTopping: DRINK_TOPPINGS, drinkName: DRINK, milkOption: MILK_OPTIONS,  saucePumps: number) {
+    constructor(drinkSize: DRINK_SIZES, drinkType: DRINK_TYPES, drinkTopping: DRINK_TOPPINGS, drinkSauce: SAUCE_PUMP, saucePumps: number, drinkName: DRINK, milkOption: MILK_OPTIONS) {
         this.drinkSize = drinkSize;
         this.drinkType = drinkType;
         this.drinkTopping = drinkTopping;
+        this.drinkSauce = drinkSauce;
+        this.saucePumps = saucePumps;
         this.drinkName = drinkName;
         this.milkOption = milkOption;
-        this.saucePumps = saucePumps;
     }
 }
 
@@ -142,21 +165,33 @@ export function calculatePrice2(type: DRINK_TYPES, size: DRINK_SIZES, topping: D
   return price;
 }
 
-export function calculatePrice3(type: DRINK_TYPES, size: DRINK_SIZES, topping: DRINK_TOPPINGS, drink: DRINK, milk: MILK_OPTIONS, saucePumps: number): number {
+export function calculatePrice3(type: DRINK_TYPES, size: DRINK_SIZES, topping: DRINK_TOPPINGS, sauce: SAUCE_PUMP, saucePumps: number, drink: DRINK, milk: MILK_OPTIONS): number {
     let price: number = calculatePrice2(type, size, topping, drink, milk);
 
-    // Chocolate sauce can only be added to hot drinks
-    // The first 2 pumps are free
-    if (type !== DRINK_TYPES.HOT && topping === DRINK_TOPPINGS.SAUCE_PUMP)
-        throw new Error("Sauce pumps are only available for hot drink");
-    
-    // Maximum of 6 pumps
-    if (saucePumps > 6)
-        throw new Error("At most 6 pumps can be added to your drink");
-    
-    // The first 2 pumps are free
-    price += (saucePumps - 2) * ADJUSTMENTS.EXTRA_SAUCE_PUMPS;
+    // Sauce can only be added to hot drinks
+    // if (type !== DRINK_TYPES.HOT)
+    //     if (sauce !== SAUCE_PUMP.NONE || saucePumps !== 0)
+    //         throw new Error("Sauce pumps are only available for hot drink");
+    // else {
+    //     if (sauce === SAUCE_PUMP.NONE)
+    //         if (saucePumps !== 0)
+    //             throw new Error("Please select the sauce you want");
+    //     else
+    //         if (saucePumps < 1)
+    //             throw new Error("Please add at least 1 pump if you want sauce in your drink");
+    //         else if (saucePumps > 6)
+    //             throw new Error("At most 6 pumps can be added to your drink");
+    //         else if (saucePumps > 2 && saucePumps <= 6)
+    //             price += (saucePumps - 2) * ADJUSTMENTS.EXTRA_SAUCE_PUMPS;
+    // }
 
+    // Sauce can only be added to hot drinks
+    if (sauce !== SAUCE_PUMP.NONE) {
+        if (type !== DRINK_TYPES.HOT)
+            throw new Error("Sauce pumps are only available for hot drink");
+    }
+
+    // No sauce pump or number of sauce pumps is less than or equal to 2
     return price;
 }
 
@@ -193,7 +228,7 @@ export function calculatePrice5(items: Item[]): Bill {
             let drink: Drink = item as unknown as Drink;
 
             // Calc item price
-            itemPrice += calculatePrice3(drink.drinkType, drink.drinkSize, drink.drinkTopping, drink.drinkName, drink.milkOption, drink.saucePumps);
+            itemPrice += calculatePrice3(drink.drinkType, drink.drinkSize, drink.drinkTopping, drink.drinkSauce, drink.saucePumps, drink.drinkName, drink.milkOption);
             
             // Update item name
             if (drink.drinkSize === DRINK_SIZES.S)
@@ -220,10 +255,19 @@ export function calculatePrice5(items: Item[]): Bill {
                 itemName += DRINK.MILK_TEA + " ";
             
             // Drink topping
-            if (drink.drinkTopping === DRINK_TOPPINGS.WHIPPED_CREAM) {
-                itemName += DRINK_TOPPINGS.WHIPPED_CREAM + " ";
-            } else if (drink.drinkTopping === DRINK_TOPPINGS.SAUCE_PUMP) {
-                itemName += drink.saucePumps + " " + DRINK_TOPPINGS.SAUCE_PUMP;
+            // if (drink.drinkTopping === DRINK_TOPPINGS.WHIPPED_CREAM) {
+            //     itemName += DRINK_TOPPINGS.WHIPPED_CREAM + " ";
+            // } else if (drink.drinkTopping === DRINK_TOPPINGS.SAUCE_PUMP) {
+            //     itemName += drink.saucePumps + " " + DRINK_TOPPINGS.SAUCE_PUMP;
+            //     if (drink.saucePumps > 1)
+            //         itemName += "S";
+            //     itemName += " ";
+            // }
+            if (drink.drinkTopping !== DRINK_TOPPINGS.NONE)
+                itemName += drink.drinkTopping + " ";
+            
+            if (drink.drinkSauce !== SAUCE_PUMP.NONE) {
+                itemName += drink.saucePumps + " " + drink.drinkSauce;
                 if (drink.saucePumps > 1)
                     itemName += "S";
                 itemName += " ";
