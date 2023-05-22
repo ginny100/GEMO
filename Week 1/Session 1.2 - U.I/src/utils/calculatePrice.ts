@@ -89,7 +89,7 @@ export interface Item {
 };
 
 export class Drink implements Item {
-    itemType: ITEM_TYPES.DRINK;
+    itemType: ITEM_TYPES;
     drinkSize: DRINK_SIZES;
     drinkType: DRINK_TYPES;
     drinkTopping: DRINK_TOPPINGS;
@@ -99,6 +99,7 @@ export class Drink implements Item {
     milkOption: MILK_OPTIONS;
 
     constructor(drinkSize: DRINK_SIZES, drinkType: DRINK_TYPES, drinkTopping: DRINK_TOPPINGS, drinkSauce: SAUCE_PUMP, saucePumps: number, drinkName: DRINK, milkOption: MILK_OPTIONS) {
+        this.itemType = ITEM_TYPES.DRINK;
         this.drinkSize = drinkSize;
         this.drinkType = drinkType;
         this.drinkTopping = drinkTopping;
@@ -110,11 +111,12 @@ export class Drink implements Item {
 }
 
 export class Food implements Item {
-    itemType: ITEM_TYPES.FOOD;
+    itemType: ITEM_TYPES;
     foodName: FOOD;
     foodAdditional: FOOD_ADDITIONALS;
 
     constructor(foodName: FOOD, foodAdditional: FOOD_ADDITIONALS) {
+        this.itemType = ITEM_TYPES.FOOD;
         this.foodName = foodName;
         this.foodAdditional = foodAdditional;
     }
@@ -167,29 +169,16 @@ export function calculatePrice3(type: DRINK_TYPES, size: DRINK_SIZES, topping: D
     let price: number = calculatePrice2(type, size, topping, drink, milk);
 
     // Sauce can only be added to hot drinks
-    // if (type !== DRINK_TYPES.HOT)
-    //     if (sauce !== SAUCE_PUMP.NONE || saucePumps !== 0)
-    //         throw new Error("Sauce pumps are only available for hot drink");
-    // else {
-    //     if (sauce === SAUCE_PUMP.NONE)
-    //         if (saucePumps !== 0)
-    //             throw new Error("Please select the sauce you want");
-    //     else
-    //         if (saucePumps < 1)
-    //             throw new Error("Please add at least 1 pump if you want sauce in your drink");
-    //         else if (saucePumps > 6)
-    //             throw new Error("At most 6 pumps can be added to your drink");
-    //         else if (saucePumps > 2 && saucePumps <= 6)
-    //             price += (saucePumps - 2) * ADJUSTMENTS.EXTRA_SAUCE_PUMPS;
-    // }
-
-    // Sauce can only be added to hot drinks
     if (sauce !== SAUCE_PUMP.NONE) {
         if (type !== DRINK_TYPES.HOT)
             throw new Error("Sauce pumps are only available for hot drink");
     }
 
     // No sauce pump or number of sauce pumps is less than or equal to 2
+    if (sauce === SAUCE_PUMP.NONE || saucePumps <= 2)
+        return price;
+    
+    price += (saucePumps - 2) * ADJUSTMENTS.EXTRA_SAUCE_PUMPS;
     return price;
 }
 
@@ -220,7 +209,8 @@ export function calculatePrice4(breakfastItem: FOOD, breakfastItemAdditional: FO
 export function calculatePrice5(items: Item[]): Bill {
     let bill: Bill;
     let totalPrice: number = 0.0;
-    let breakdown: Map<string, number>;
+    let breakdown: Map<string, number> = new Map<string, number>();
+    //TODO: Extend the breakdown to save number of same items -> Map<string, [number, number]>
 
     for (const item of items) {
         let itemName: string = "";
@@ -262,7 +252,7 @@ export function calculatePrice5(items: Item[]): Bill {
                 itemName += drink.drinkTopping + " ";
             
             if (drink.drinkSauce !== SAUCE_PUMP.NONE) {
-                itemName += drink.saucePumps + " " + drink.drinkSauce;
+                itemName += drink.saucePumps + " " + drink.drinkSauce + " PUMP";
                 if (drink.saucePumps > 1)
                     itemName += "S";
                 itemName += " ";
@@ -284,13 +274,13 @@ export function calculatePrice5(items: Item[]): Bill {
             // Food additional
             if (food.foodAdditional) {
                 if (food.foodAdditional === FOOD_ADDITIONALS.EGG)
-                    itemName += FOOD_ADDITIONALS.EGG;
+                    itemName += FOOD_ADDITIONALS.EGG + " ";
                 else if (food.foodAdditional === FOOD_ADDITIONALS.TURKEY)
-                    itemName += FOOD_ADDITIONALS.TURKEY;
+                    itemName += FOOD_ADDITIONALS.TURKEY + " ";
                 else if (food.foodAdditional === FOOD_ADDITIONALS.BUTTER)
-                    itemName += FOOD_ADDITIONALS.BUTTER;
-                else
-                    itemName += FOOD_ADDITIONALS.CREAM_CHEESE;
+                    itemName += FOOD_ADDITIONALS.BUTTER + " ";
+                else if (food.foodAdditional === FOOD_ADDITIONALS.CREAM_CHEESE)
+                    itemName += FOOD_ADDITIONALS.CREAM_CHEESE + " ";
             }
 
             // Food type
@@ -301,7 +291,7 @@ export function calculatePrice5(items: Item[]): Bill {
         }
 
         // Update bill and total price with current item price
-        breakdown[itemName] = itemPrice;
+        breakdown.set(itemName, itemPrice)
         totalPrice += itemPrice;
     }
 
