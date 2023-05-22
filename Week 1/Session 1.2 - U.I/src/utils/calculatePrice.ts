@@ -41,9 +41,7 @@ export enum DRINK_TOPPINGS {
     // COCONUT_JELLY = "COCONUT JELLY"
 };
 
-// TODO: Separate toppings and sauce pumps into 2 different categories.
-// Later one, there may be more options for topping such as creamchease, jelly, boba, etc.
-// and more options for sauce pumps such as caramel, vanilla, hazelnut, etc.
+// TODO: Refactor code
 
 export enum SAUCE_PUMP {
     NONE = "NONE",
@@ -86,11 +84,11 @@ export enum ADJUSTMENTS {
 const FOOD_BASE_PRICE: number = 3.0;
 const TAX_RATE: number = 7.25;
 
-interface Item {
+export interface Item {
     itemType: ITEM_TYPES;
 };
 
-class Drink implements Item {
+export class Drink implements Item {
     itemType: ITEM_TYPES.DRINK;
     drinkSize: DRINK_SIZES;
     drinkType: DRINK_TYPES;
@@ -111,7 +109,7 @@ class Drink implements Item {
     }
 }
 
-class Food implements Item {
+export class Food implements Item {
     itemType: ITEM_TYPES.FOOD;
     foodName: FOOD;
     foodAdditional: FOOD_ADDITIONALS;
@@ -122,7 +120,7 @@ class Food implements Item {
     }
 }
 
-type Bill = [number, Map<string, number>];
+export type Bill = [number, Map<string, number>];
 
 export function calculatePrice1(basePrice: number, type: DRINK_TYPES, size: DRINK_SIZES, topping: DRINK_TOPPINGS): number {
     let price: number = basePrice;
@@ -197,7 +195,12 @@ export function calculatePrice3(type: DRINK_TYPES, size: DRINK_SIZES, topping: D
 
 export function calculatePrice4(breakfastItem: FOOD, breakfastItemAdditional: FOOD_ADDITIONALS): number {
     let price: number = FOOD_BASE_PRICE;
+    
+    // Plain sandwich or bagel
+    if (breakfastItemAdditional === FOOD_ADDITIONALS.NONE)
+            return price;
 
+    // Sandwich or bagel with additionals
     if (breakfastItem === FOOD.SANDWICH) {
         if (breakfastItemAdditional === FOOD_ADDITIONALS.BUTTER ||
             breakfastItemAdditional === FOOD_ADDITIONALS.CREAM_CHEESE)
@@ -255,14 +258,6 @@ export function calculatePrice5(items: Item[]): Bill {
                 itemName += DRINK.MILK_TEA + " ";
             
             // Drink topping
-            // if (drink.drinkTopping === DRINK_TOPPINGS.WHIPPED_CREAM) {
-            //     itemName += DRINK_TOPPINGS.WHIPPED_CREAM + " ";
-            // } else if (drink.drinkTopping === DRINK_TOPPINGS.SAUCE_PUMP) {
-            //     itemName += drink.saucePumps + " " + DRINK_TOPPINGS.SAUCE_PUMP;
-            //     if (drink.saucePumps > 1)
-            //         itemName += "S";
-            //     itemName += " ";
-            // }
             if (drink.drinkTopping !== DRINK_TOPPINGS.NONE)
                 itemName += drink.drinkTopping + " ";
             

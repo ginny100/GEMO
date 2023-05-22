@@ -166,5 +166,45 @@ describe('Test suite 3: calculatePrice3', () => {
 });
 
 // Test suite 4
+describe('Test suite 4: calculatePrice4', () => {
+  it('Test case 1: Plain sandwich', () => {
+    const price = calculatePrice.calculatePrice4(calculatePrice.FOOD.SANDWICH, calculatePrice.FOOD_ADDITIONALS.NONE);
+    expect(price).toBe(3);
+  });
+
+  it('Test case 2: Egg sandwich', () => {
+    const price = calculatePrice.calculatePrice4(calculatePrice.FOOD.SANDWICH, calculatePrice.FOOD_ADDITIONALS.EGG);
+    expect(price).toBe(4);
+  });
+
+  it('Test case 3: Turkey sandwich', () => {
+    const price = calculatePrice.calculatePrice4(calculatePrice.FOOD.SANDWICH, calculatePrice.FOOD_ADDITIONALS.TURKEY);
+    expect(price).toBe(4);
+  });
+
+  it('Test case 4: Plain bagel', () => {
+    const price = calculatePrice.calculatePrice4(calculatePrice.FOOD.BAGEL, calculatePrice.FOOD_ADDITIONALS.NONE);
+    expect(price).toBe(3);
+  });
+
+  it('Test case 3: Butter bagel', () => {
+    const price = calculatePrice.calculatePrice4(calculatePrice.FOOD.BAGEL, calculatePrice.FOOD_ADDITIONALS.BUTTER);
+    expect(price).toBe(3.5);
+  });
+
+  it('Test case 4: Cream cheese bagel', () => {
+    const price = calculatePrice.calculatePrice4(calculatePrice.FOOD.BAGEL, calculatePrice.FOOD_ADDITIONALS.CREAM_CHEESE);
+    expect(price).toBe(3.5);
+  });
+});
 
 // Test suite 5
+describe('Test suite 5: calculatePrice5', () => {
+  it('Test case 1: Empty item list', () => {
+    const bill: calculatePrice.Bill = calculatePrice.calculatePrice5([]);
+    expect(bill[0]).toBe(0);
+    expect(bill[1]).toBe(undefined);
+  });
+
+  
+});
