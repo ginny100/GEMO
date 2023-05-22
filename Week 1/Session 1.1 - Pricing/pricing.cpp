@@ -403,13 +403,13 @@ int main()
     // Test case 1: Calculate price for sandwich with egg
     assert(calculatePrice4(SANDWICH, true) == 4);
 
-    // Test case 2: Calculate price for sandwich with turkey
+    // Test case 2: Calculate price for sandwich without turkey
     assert(calculatePrice4(SANDWICH, false) == 3);
 
     // Test case 3: Calculate price for bagel with butter
     assert(calculatePrice4(BAGEL, true) == 3.5);
 
-    // Test case 4: Calculate price for bagel with cream cheese
+    // Test case 4: Calculate price for bagel without cream cheese
     assert(calculatePrice4(BAGEL, false) == 3);
   }
 
